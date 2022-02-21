@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,7 +26,7 @@ SECRET_KEY = 'django-insecure-%px5$(od1)&7v2g#99r!+udwk$@7jo$0ohpc9go^*d8kxr(hy7
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
-
+SIMPLEUI_DEFAULT_THEME = 'x-green.css'
 # Application definition
 
 INSTALLED_APPS = [
@@ -36,14 +37,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'wage.apps.WageConfig'
+    'wage.apps.WageConfig',
+    'captcha',
+    'dadmin.apps.DadminConfig'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -124,3 +127,20 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+SIMPLEUI_HOME_INFO = False
+SIMPLEUI_ANALYSIS = False
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10240
+# 导入导出
+# IMPORT_EXPORT_USE_TRANSACTIONS = True
+
+USE_TZ = False
+# USE_L10N = False
+#
+# DATETIME_FORMAT = 'Y/m/d H:i:s'
+#
+# DATE_FORMAT = 'Y/m'
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static'),
+)
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+#
