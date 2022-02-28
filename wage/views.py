@@ -5,7 +5,7 @@ from urllib import parse
 import requests
 from django.http import HttpResponse
 from django.shortcuts import render
-from .models import WageDeptment, WagePosition, WageEmployee
+from .models import WageDeptment, WagePosition, WageEmployee,WageRank
 
 
 # from functions import insertdata
@@ -31,7 +31,8 @@ def getdatafrominter(request):
                     'id': datas[0],
                     'dept_id': datas[1],
                     'dept_name': datas[2],
-                    'dept_base': datas[3]
+                    'dept_base': datas[3],
+                    'dept_short_name': datas[4]
                 },
                 id=datas[0]
             )
@@ -49,12 +50,12 @@ def getdatafrominter(request):
     # emp进员工信息表
     if d['table'] == 't_hr_employee':
         for datas in retu_data['data']:
-            print(datas[1])
             try:
                 dept = WageDeptment.objects.get(id=datas[2])
+                print(type(dept))
+                print(dept)
             except Exception as e:
                 dept = WageDeptment.objects.get(id=23333)
-                print(dept)
                 print(e)
 
             try:
@@ -62,6 +63,12 @@ def getdatafrominter(request):
             except Exception as e:
                 print(e)
                 p = WagePosition.objects.get(id=1)
+
+            try:
+                rank = WageRank.objects.get(id=datas[8])
+            except Exception as e:
+                print(e)
+                rank = WageRank.objects.get(id=34)
             WageEmployee.objects.update_or_create(
                 defaults={
                     'emp_id': datas[0],
@@ -71,7 +78,10 @@ def getdatafrominter(request):
                     'emp_entry_date': datas[4],
                     'emp_leave_date': datas[5],
                     'emp_job_status': datas[6],
-                    'emp_job_type': datas[7]
+                    'emp_job_type': datas[7],
+                    'emp_rank': rank,
+                    'emp_in_date': datas[9],
+                    'emp_leave_bl_date': datas[10],
                 },
                 emp_id=datas[0]
             )

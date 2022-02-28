@@ -125,16 +125,30 @@ class DjangoSession(models.Model):
 class WageDeptment(models.Model):
     dept_id = models.CharField(max_length=255, blank=True, null=True, verbose_name='部门编码')
     dept_name = models.CharField(max_length=255, blank=True, null=True, verbose_name='部门名')
-    dept_base = models.CharField(max_length=255, blank=True, null=True, verbose_name='所属基地')
+    dept_base = models.CharField(max_length=255, blank=True, null=True, verbose_name='管理归属')
+    dept_short_name = models.CharField(max_length=255, blank=True, null=True, verbose_name='部门简称')
 
     def __str__(self):
-        return str(self.dept_name)
+        return str(self.dept_short_name)
 
     class Meta:
         managed = False
         db_table = 'wage_deptment'
         verbose_name = '部门表'
         verbose_name_plural = '部门表'
+
+
+class WageRank(models.Model):
+    rank_name = models.CharField(max_length=255, blank=True, null=True, verbose_name='合同归属')
+
+    def __str__(self):
+        return str(self.rank_name)
+
+    class Meta:
+        managed = False
+        db_table = 'wage_rank'
+        verbose_name = '合同归属表'
+        verbose_name_plural = '合同归属表'
 
 
 class WagePeriod(models.Model):
@@ -162,10 +176,13 @@ class WageEmployee(models.Model):
     emp_name = models.CharField(max_length=255, blank=True, null=True, verbose_name='员工名')
     emp_dept = models.ForeignKey(WageDeptment, models.DO_NOTHING, blank=True, null=True, verbose_name='部门')
     emp_posi = models.ForeignKey('WagePosition', models.DO_NOTHING, blank=True, null=True, verbose_name='岗位')
-    emp_entry_date = models.DateField(blank=True, null=True, verbose_name='入职日期')
-    emp_leave_date = models.DateField(blank=True, null=True, verbose_name='离职日期')
+    emp_entry_date = models.DateField(blank=True, null=True, verbose_name='集团入职日期')
+    emp_leave_date = models.DateField(blank=True, null=True, verbose_name='离职结薪日期')
     emp_job_status = models.IntegerField(blank=True, null=True, verbose_name='在职状态', choices=job_status_choices)
     emp_job_type = models.CharField(max_length=255, blank=True, null=True, verbose_name='在职类型')
+    emp_rank = models.ForeignKey('WageRank', models.DO_NOTHING, blank=True, null=True, verbose_name='合同归属')
+    emp_in_date = models.DateField(blank=True, null=True, verbose_name='入职日期')
+    emp_leave_bl_date = models.DateField(blank=True, null=True, verbose_name='离职办理日期')
 
     def __str__(self):
         return str(self.emp_name)
@@ -192,7 +209,7 @@ class WageExpense(models.Model):
 
 class WageExpenseInto(models.Model):
     into_emp = models.ForeignKey(WageEmployee, models.DO_NOTHING, blank=True, null=True, verbose_name='员工')
-    into_period = models.ForeignKey(WagePeriod, models.DO_NOTHING, blank=True, null=True, verbose_name='周期')
+    # into_period = models.ForeignKey(WagePeriod, models.DO_NOTHING, blank=True, null=True, verbose_name='周期')
     into_periods = models.CharField(max_length=255, blank=True, null=True, verbose_name='周期')
     into_expense = models.ForeignKey(WageExpense, models.DO_NOTHING, blank=True, null=True, verbose_name='费用项目')
     into_reason = models.CharField(max_length=255, blank=True, null=True, verbose_name='原因')
@@ -212,7 +229,7 @@ class WageExpenseInto(models.Model):
 
 class WagePerformanceInto(models.Model):
     perfor_emp = models.ForeignKey(WageEmployee, models.DO_NOTHING, blank=True, null=True, verbose_name='员工')
-    perfor_period = models.ForeignKey(WagePeriod, models.DO_NOTHING, blank=True, null=True, verbose_name='周期')
+    perfor_center = models.CharField(max_length=255, blank=True, null=True, verbose_name='中心别')
     perfor_periods = models.CharField(max_length=255, blank=True, null=True, verbose_name='周期')
     perfor_period_type = models.CharField(max_length=255, blank=True, null=True, verbose_name='周期类型')
     perfor_costs_attach = models.CharField(max_length=255, blank=True, null=True, verbose_name='成本归属')
@@ -226,6 +243,7 @@ class WagePerformanceInto(models.Model):
     perfor_ratio_dp = models.FloatField(blank=True, null=True, verbose_name='部门绩效系数')
     perfor_ratio_cp = models.FloatField(blank=True, null=True, verbose_name='公司绩效系数')
     perfor_ratio_tp = models.FloatField(blank=True, null=True, verbose_name='综合绩效系数')
+    perfor_result = models.CharField(max_length=255, blank=True, null=True, verbose_name='考核结果')
 
     class Meta:
         managed = False
@@ -256,7 +274,7 @@ class WageFixWage(models.Model):
     fix_wage_type = models.CharField(max_length=255, blank=True, null=True, verbose_name='薪酬类型')
     fix_skill_level = models.CharField(max_length=255, blank=True, null=True, verbose_name='技能等级')
     fix_manage_level = models.CharField(max_length=255, blank=True, null=True, verbose_name='管理等级')
-    fix_wage_stand = models.FloatField(blank=True, null=True, verbose_name='工资标准')
+    fix_wage_stand = models.FloatField(blank=True, null=True, verbose_name='标准工资')
     fix_base_wage = models.FloatField(blank=True, null=True, verbose_name='基本工资')
     fix_post_wage = models.FloatField(blank=True, null=True, verbose_name='岗位工资')
     fix_perfor_wage = models.FloatField(blank=True, null=True, verbose_name='绩效工资')
@@ -335,3 +353,40 @@ class WageFixLog(models.Model):
         db_table = 'wage_fix_log'
         verbose_name = '固定工资导入日志'
         verbose_name_plural = '固定工资导入日志'
+
+
+class WageBase(models.Model):
+    base_name = models.CharField(max_length=255, blank=True, null=True, verbose_name='基地名')
+
+    def __str__(self):
+        return str(self.base_name)
+
+    class Meta:
+        managed = False
+        db_table = 'wage_base'
+        verbose_name = '基地表'
+        verbose_name_plural = '基地表'
+
+
+class WageSkill(models.Model):
+    skill_local = models.ForeignKey(WageBase, models.DO_NOTHING, blank=True, null=True, verbose_name='基地名')
+    skill_grade = models.CharField(max_length=255, blank=True, null=True, verbose_name='技能等级')
+    skill_allowance = models.FloatField(blank=True, null=True, verbose_name='技能津贴')
+
+    class Meta:
+        managed = False
+        db_table = 'wage_skill'
+        verbose_name = '技能津贴表'
+        verbose_name_plural = '技能津贴表'
+
+
+class WageManage(models.Model):
+    manage_position = models.CharField(max_length=255, blank=True, null=True, verbose_name='岗位')
+    manage_grade = models.CharField(max_length=255, blank=True, null=True, verbose_name='管理等级')
+    manage_allowance = models.FloatField(blank=True, null=True, verbose_name='管理津贴')
+
+    class Meta:
+        managed = False
+        db_table = 'wage_manage'
+        verbose_name = '管理津贴表'
+        verbose_name_plural = '管理津贴表'
