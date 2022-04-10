@@ -57,8 +57,7 @@ ROOT_URLCONF = 'WageCalc.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -70,7 +69,7 @@ TEMPLATES = [
         },
     },
 ]
-
+# AUTH_USER_MODEL = 'wage.MyUser'
 WSGI_APPLICATION = 'WageCalc.wsgi.application'
 
 # Database
@@ -83,7 +82,10 @@ DATABASES = {
         'HOST': '172.16.6.85',
         'PORT': '3306',
         'USER': 'wagecalc',
-        'PASSWORD': 'SHKtpJfixJFt5dNR'
+        'PASSWORD': 'SHKtpJfixJFt5dNR',
+        'OPTIONS': {
+            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'"
+        }
     }
 }
 
@@ -144,3 +146,115 @@ STATICFILES_DIRS = (
 )
 # STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 #
+SIMPLEUI_CONFIG = {
+    'system_keep': False,
+    'menu_display': ['基础信息', '导入报表', '工资汇总', '离职薪资', '离职面谈台账', '权限认证'],  # 开启排序和过滤功能, 不填此字段为默认排序和全部显示, 空列表[] 为全部不显示.
+    'dynamic': True,  # 设置是否开启动态菜单, 默认为False. 如果开启, 则会在每次用户登陆时动态展示菜单内容
+    'menus': [{
+        'app': 'wage',
+        'name': '基础信息',
+        'icon': 'el-icon-more',
+        'models': [{
+            'name': '员工',
+            'icon': 'el-icon-user-solid',
+            'url': 'wage/wageemployee/'
+        }, {
+            'name': '部门',
+            'icon': 'el-icon-phone',
+            'url': 'wage/wagedeptment/'
+        }, {
+            'name': '岗位',
+            'icon': 'el-icon-s-cooperation',
+            'url': 'wage/wageposition/'
+        }, {
+            'name': '费用项目',
+            'icon': 'el-icon-s-comment',
+            'url': 'wage/wageexpense/'
+        }, {
+            'name': '基地',
+            'icon': 'el-icon-position',
+            'url': 'wage/wagebase/'
+        }, {
+            'name': '技能津贴',
+            'icon': 'el-icon-water-cup',
+            'url': 'wage/wageskill/'
+        }, {
+            'name': '管理津贴',
+            'icon': 'el-icon-postcard',
+            'url': 'wage/wagemanage/'
+        }
+        ]
+    }, {
+        'app': 'wage',
+        'name': '工资汇总',
+        'icon': 'el-icon-lock',
+        'models': [{
+            'name': '月度工资汇总表',
+            'icon': 'el-icon-connection',
+            'url': 'wage/wagemonth/'
+        }
+        ]
+    }, {
+        'app': 'wage',
+        'name': '离职薪资',
+        'icon': 'el-icon-s-flag',
+        'models': [{
+            'name': '离职薪资汇总',
+            'icon': 'el-icon-s-opportunity',
+            'url': 'wage/wageleave/'
+        }
+        ]
+    },
+        {
+            'app': 'wage',
+            'name': '导入报表',
+            'icon': 'el-icon-upload2',
+            'models': [{
+                'name': '费用导入',
+                'icon': 'el-icon-s-promotion',
+                'url': 'wage/wageexpenseinto/'
+            }, {
+                'name': '绩效导入',
+                'icon': 'el-icon-s-flag',
+                'url': 'wage/wageperformanceinto/'
+            }, {
+                'name': '固定工资导入',
+                'icon': 'el-icon-s-data',
+                'url': 'wage/wagefixwage/'
+            }, {
+                'name': '上传日志',
+                'icon': 'el-icon-finished',
+                'url': 'wage/wagelog/'
+            }
+            ]
+        },
+        {
+            'app': 'wage',
+            'name': '离职面谈台账',
+            'icon': 'el-icon-folder',
+            'models': [{
+                'name': '离职理由',
+                'icon': 'el-icon-tickets',
+                'url': 'wage/leavereason/'
+            }, {
+                'name': '面谈台账',
+                'icon': 'el-icon-document',
+                'url': 'wage/leaveaccount/'
+            }
+            ]
+        },
+        {
+            'app': 'auth',
+            'name': '权限认证',
+            'icon': 'fas fa-user-shield',
+            'models': [{
+                'name': '用户',
+                'icon': 'fa fa-user',
+                'url': 'auth/user/'
+            }, {
+                'name': '组',
+                'icon': 'fas fa-users-cog',
+                'url': 'auth/group/'
+            }]
+        }]
+}

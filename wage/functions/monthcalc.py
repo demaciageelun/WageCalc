@@ -13,7 +13,8 @@ def calc(period_id):
     # 根据选择的周期确定需要计算工资的人员，人员包括：1、离职日期为空的人。2、离职日期以周期开头的。即计算1月份的工资的话，筛选离职日期为空的人和1月份离职的人。默认不会提前一个月设置离职日期。
     # period = WagePeriod.objects.filter(id=period_id).values('period_name')
     emp_list = WageEmployee.objects.filter(
-        Q(emp_leave_date=None) | Q(emp_leave_date__startswith=str(period_id))).values('id')
+        # Q(emp_leave_date=None) | Q(emp_leave_date__startswith=str(period_id))).values('id')
+        Q(emp_leave_date=None) | Q(emp_leave_date__gte=str(period_id)[:7] + "-01")).values('id')
     # 根据员工工号获取固定工资信息，再依次写入月度工资表中。使用in的写法，减少遍历，速度加快很多。
     sql = "select id,fix_emp_id,fix_wage_stand,fix_base_wage,fix_wage_type,fix_post_wage,fix_perfor_wage,fix_skill_wage,fix_manage_wage,fix_phone_subsidy from wage_fix_wage where fix_emp_id in ({})".format(
         ','.join(["'%s'" % item['id'] for item in emp_list]))
@@ -28,8 +29,8 @@ def calc(period_id):
                 'mon_base_wage': obj.fix_base_wage,
                 'mon_post_wage': obj.fix_post_wage,
                 'mon_perfor_wage': obj.fix_perfor_wage,
-                'mon_manage_wage': obj.fix_skill_wage,
-                'mon_skill_wage': obj.fix_manage_wage,
+                'mon_manage_wage': obj.fix_manage_wage,
+                'mon_skill_wage': obj.fix_skill_wage,
             },
             mon_emp_id=obj.fix_emp_id,
             mon_periods=str(period_id)
@@ -97,9 +98,7 @@ def calc(period_id):
         ','.join(["'%s'" % item['id'] for item in emp_list]))
 
     expense_list = WageExpenseInto.objects.raw(sql)
-    print(expense_list)
     for obj in expense_list:
-        print(obj.into_emp_id)
         WageMonth.objects.update_or_create(
             defaults={
                 'mon_emp_id': obj.into_emp_id,

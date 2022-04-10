@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>薪资数据</title>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu"
+          crossorigin="anonymous">
+
+    <!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ"
+          crossorigin="anonymous">
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd"
+            crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="table-responsive">
+    <table class="table table-bordered table-hover">
+        <div class="alert alert-success" role="alert">工资查询</div>
+        <tbody>
+        {% for item in leavedatas %}
+            {% if item.data != "" and item.data != None and item.data != 0%}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.data }}</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+        </tbody>
+    </table>
+    <div class="alert alert-danger" role="alert">
+        温馨提示：<br>
+        1.如有疑问请咨询员工服务-薪资答疑（企业微信通讯录），或致电0515-80891175咨询；<br>
+        2.公司员工不得透露、谈论、发布本人及其他员工的薪酬情况，一经发现，将给予解聘处分。<br>
+        工资计算说明：<br>
+        1.应发合计=应发基本工资+应发岗位工资+绩效+补贴合计+加班费+夜班津贴+奖惩+奖金+临时补贴+体检费-考勤异常扣款+社保补扣款+其他补扣款<br>
+        2.实发工资=应发合计-社保公积金个人承担-水电费-房租费-个税<br>
+        3.补贴合计=当月根据出勤计算的津贴补贴，包含技能津贴、管理津贴、年资津贴、话费补贴、就餐补贴等<br>
+        4.临时补贴=购车补贴、春节责任制加班补贴、培训工时补贴等<br>
+        5.其他补扣款=内荐费、多能工津贴、人事行政扣款、工伤工资差额、停车费、司机里程补贴等<br>
+        注：补扣款指需要补发或扣发的项目
+    </div>
+
+</div>
+</body>
+</html>

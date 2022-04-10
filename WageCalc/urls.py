@@ -20,7 +20,5 @@ from dadmin.admin import admin_site
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('myadmin/', admin_site.urls),
-    # path('captcha/', include('captcha.urls')),
     path('getdata/', include('wage.urls'))
 ]
