@@ -182,6 +182,8 @@ class WageExpenseIntoAdmin(AjaxAdmin):
         actions = super(WageExpenseIntoAdmin, self).get_actions(request)
         if not request.user.has_perm('wage.can_import_expense'):
             del actions['upload_file']
+        if not request.user.has_perm('wage.can_download_expense'):
+            del actions['download']
         return actions
 
     def download_templates(self, request, queryset):
@@ -201,7 +203,6 @@ class WageExpenseIntoAdmin(AjaxAdmin):
         upload = request.FILES['upload']
         # 将上传的文件保存到static中
         now_time = str(firstdate.datetime.now().strftime("%Y-%m-%d_%H.%M.%S"))
-        WageLog.objects.create(log_user=str(request.user), log_model='费用引入', log_path='static/expense/', log_file_name=now_time + str(request.user) + upload.name)
         with open('static/expense/' + now_time + str(request.user) + upload.name, 'wb') as f:
             for line in upload.chunks():
                 f.write(line)
@@ -221,10 +222,10 @@ class WageExpenseIntoAdmin(AjaxAdmin):
             for datas in range(rows):
                 if datas > 0:
                     emp_id = table.cell(datas + 1, head_data.index('工号') + 1).value
-                    if type(emp_id) == int:
+                    if emp_id is not None:
                         emp_name = table.cell(datas + 1, head_data.index('姓名') + 1).value
-                        sql_name = WageEmployee.objects.raw("select id,emp_name from wage_employee where emp_id = '" + str(emp_id) + "'")
-                        if len(sql_name) > 0 and str(sql_name[0]) == emp_name:
+                        sql_name = WageEmployee.objects.raw("select id,emp_name from wage_employee where emp_id = '" + str(emp_id).replace(" ", "") + "'")
+                        if len(sql_name) > 0 and str(sql_name[0]) == emp_name.replace(" ", ""):
                             expense_name = table.cell(datas + 1, head_data.index('项目') + 1).value
                             period_name = table.cell(datas + 1, head_data.index('周期') + 1).value
                             into_emp_id = WageEmployee.objects.filter(emp_id=int(emp_id)).values('id')[0]['id']
@@ -257,14 +258,15 @@ class WageExpenseIntoAdmin(AjaxAdmin):
                                     into_calc_elem_other=table.cell(datas + 1, head_data.index('其他计算要素') + 1).value,
                                 )
                             else:
-                                error_str += "第" + str(datas) + "行费用项目不存在，请修正。"
+                                error_str += "第" + str(datas + 1) + "行费用项目不存在，请修正。"
                                 continue
                         else:
-                            error_str += "第" + str(datas) + "行工号和姓名不匹配，请修正。"
+                            error_str += "第" + str(datas + 1) + "行工号和姓名不匹配，请修正。"
                             continue
                     else:
-                        error_str += "第" + str(datas) + "行有空字符串，请整行删除。"
+                        error_str += "第" + str(datas + 1) + "行有空字符串，请整行删除。"
                         continue
+            WageLog.objects.create(log_user=str(request.user), log_model='费用引入', log_path='static/expense/', log_file_name=now_time + str(request.user) + upload.name, log_content=error_str)
             # 如果错误
             if error_str == "":
                 status = 'success'
@@ -373,6 +375,8 @@ class WagePerformanceIntoAdmin(AjaxAdmin):
         actions = super(WagePerformanceIntoAdmin, self).get_actions(request)
         if not request.user.has_perm('wage.can_import_performance'):
             del actions['upload_file']
+        if not request.user.has_perm('wage.can_download_performance'):
+            del actions['download']
         return actions
 
     def get_readonly_fields(self, request, obj=None):
@@ -412,7 +416,6 @@ class WagePerformanceIntoAdmin(AjaxAdmin):
         # 这里的upload 就是和params中配置的key一样
         upload = request.FILES['upload']
         now_time = str(firstdate.datetime.now().strftime("%Y-%m-%d_%H.%M.%S"))
-        WageLog.objects.create(log_user=str(request.user), log_model='绩效引入', log_path='static/performance/', log_file_name=now_time + str(request.user) + upload.name)
         # 将上传的文件保存到static中
         with open('static/performance/' + now_time + str(request.user) + upload.name, 'wb') as f:
             for line in upload.chunks():
@@ -434,11 +437,11 @@ class WagePerformanceIntoAdmin(AjaxAdmin):
             for datas in range(rows):
                 if datas > 0:
                     emp_id = table.cell(datas + 1, head_data.index('工号') + 1).value
-                    if type(emp_id) == int:
+                    if emp_id is not None:
                         perfor_emp_id = WageEmployee.objects.filter(emp_id=int(emp_id)).values('id')[0]['id']
-                        sql_name = WageEmployee.objects.raw("select id,emp_name from wage_employee where emp_id = '" + str(emp_id) + "'")
+                        sql_name = WageEmployee.objects.raw("select id,emp_name from wage_employee where emp_id = '" + str(emp_id).replace(" ", "") + "'")
                         perfor_name = table.cell(datas + 1, head_data.index('姓名') + 1).value
-                        if len(sql_name) > 0 and str(sql_name[0]) == perfor_name:
+                        if len(sql_name) > 0 and str(sql_name[0]) == perfor_name.replace(" ", ""):
                             perfor_center = table.cell(datas + 1, head_data.index('中心别') + 1).value if table.cell(datas + 1, head_data.index('中心别') + 1).value is not None else ""
                             period_name = table.cell(datas + 1, head_data.index('周期名称') + 1).value
                             # 判断是否为日期格式（datetime），不是的话报错，是的话继续循环
@@ -489,11 +492,12 @@ class WagePerformanceIntoAdmin(AjaxAdmin):
                                     perfor_periods=period_name,
                                 )
                         else:
-                            error_str += "第" + str(datas) + "行工号和姓名不匹配，请修正。"
+                            error_str += "第" + str(datas + 1) + "行工号和姓名不匹配，请修正。"
                             continue
                     else:
-                        error_str += "第" + str(datas) + "行有空字符串，请整行删除。"
+                        error_str += "第" + str(datas + 1) + "行有空字符串，请整行删除。"
                         continue
+            WageLog.objects.create(log_user=str(request.user), log_model='绩效引入', log_path='static/performance/', log_file_name=now_time + str(request.user) + upload.name, log_content=error_str)
             # 如果错误
             if error_str == "":
                 status = 'success'
@@ -625,6 +629,8 @@ class WageFixWageAdmin(AjaxAdmin):
         actions = super(WageFixWageAdmin, self).get_actions(request)
         if not request.user.has_perm('wage.can_import_fix'):
             del actions['upload_file']
+        if not request.user.has_perm('wage.can_download_fix'):
+            del actions['download']
         return actions
 
     def fix_emp_ids(self, obj):
@@ -648,7 +654,6 @@ class WageFixWageAdmin(AjaxAdmin):
         # 这里的upload 就是和params中配置的key一样
         upload = request.FILES['upload']
         now_time = str(firstdate.datetime.now().strftime("%Y-%m-%d_%H.%M.%S"))
-        WageLog.objects.create(log_user=str(request.user), log_model='固定工资引入', log_path='static/fixwage/', log_file_name=now_time + str(request.user) + upload.name)
         # 将上传的文件保存到static中
         with open('static/fixwage/' + now_time + str(request.user) + upload.name, 'wb') as f:
             for line in upload.chunks():
@@ -674,18 +679,18 @@ class WageFixWageAdmin(AjaxAdmin):
                 if datas > 0:
                     emp_id = table.cell(datas + 1, head_data.index('工号') + 1).value
                     # 先通过emp_id判断是否这行真有数据，没有的话则是空白格式，有的话就对比工号和姓名。
-                    if type(emp_id) == int:
+                    if emp_id is not None:
                         # 通过获取的工号去数据库中查找对应的姓名
-                        sql_name = WageEmployee.objects.raw("select id,emp_name from wage_employee where emp_id = '" + str(emp_id) + "'")
+                        sql_name = WageEmployee.objects.raw("select id,emp_name from wage_employee where emp_id = '" + str(emp_id).replace(" ", "") + "'")
                         emp_name = table.cell(datas + 1, head_data.index('姓名') + 1).value
                         # 如果此emp_id且有对应的emp_name则继续写入，没有的话则跳过当条循环，记录错误日志。继续下一条。
-                        if len(sql_name) > 0 and str(sql_name[0]) == emp_name:
+                        if len(sql_name) > 0 and str(sql_name[0]) == emp_name.replace(" ", ""):
                             emp_ids = WageEmployee.objects.filter(emp_id=int(emp_id)).values('id')[0]['id']
                             change_type = table.cell(datas + 1, head_data.index('类型') + 1).value
                             begin_date = table.cell(datas + 1, head_data.index('起始日期') + 1).value
                             # 判断是否为日期格式（datetime），不是的话报错，是的话继续循环
                             if type(begin_date) == int:
-                                error_str += "第" + str(datas) + "行日期格式错误，请以文本格式或日期格式，不要使用自定义格式。"
+                                error_str += "第" + str(datas + 1) + "行日期格式错误，请以文本格式或日期格式，不要使用自定义格式。"
                                 continue
                             else:
                                 work_pro = table.cell(datas + 1, head_data.index('工序') + 1).value
@@ -807,11 +812,12 @@ class WageFixWageAdmin(AjaxAdmin):
                                 #                           log_resource='excel导入',
                                 #                           )
                         else:
-                            error_str += "第" + str(datas) + "行工号和姓名不匹配，请修正。"
+                            error_str += "第" + str(datas + 1) + "行工号和姓名不匹配，请修正。"
                             continue
                     else:
-                        error_str += "第" + str(datas) + "行有空字符串，请整行删除。"
+                        error_str += "第" + str(datas + 1) + "行有空字符串，请整行删除。"
                         continue
+            WageLog.objects.create(log_user=str(request.user), log_model='固定工资引入', log_path='static/fixwage/', log_file_name=now_time + str(request.user) + upload.name, log_content=error_str)
             # 如果错误
             if error_str == "":
                 status = 'success'
@@ -1351,8 +1357,26 @@ class RecomdStandardsAdmin(AjaxAdmin):
     def upload_file(self, request, queryset):
         # 这里的upload 就是和params中配置的key一样
         upload = request.FILES['upload']
-        print(upload)
-        pass
+        # 将上传的文件保存到static中
+        with open('static/recomd/' + str(firstdate.datetime.now().strftime("%Y-%m-%d_%H.%M.%S")) + str(request.user) + upload.name, 'wb') as f:
+            for line in upload.chunks():
+                f.write(line)
+        f.close()
+        workbook = openpyxl.load_workbook('static/recomd/' + str(firstdate.datetime.now().strftime("%Y-%m-%d_%H.%M.%S")) + str(request.user) + upload.name)
+        # 可以使用workbook对象的sheetnames属性获取到excel文件中哪些表有数据
+        table = workbook.active
+        rows = table.max_row
+        cols = table.max_column
+        # 获取标题栏数据
+        head_data = []
+        for datas in range(cols):
+            head_data.append(table.cell(1, datas + 1).value)
+        # 创建一个字符串来手机所有错误数据
+        for datas in range(rows):
+            if datas > 0:
+                leave_emp_code = table.cell(datas + 1, head_data.index('工号') + 1).value
+                if type(leave_emp_code) == int:
+                    leave_wage_period = table.cell(datas + 1, head_data.index('周期') + 1).value
 
     upload_file.short_description = '文件上传'
     upload_file.type = 'success'
@@ -1374,7 +1398,7 @@ class RecomdCandidatesAdmin(AjaxAdmin):
 
 
 class WageLogAdmin(AjaxAdmin):
-    list_display = ['log_user', 'log_model', 'log_path', 'log_file_name', 'log_create_time']
+    list_display = ['log_user', 'log_model', 'log_path', 'log_file_name', 'log_create_time', 'log_content']
     list_filter = ['log_user', 'log_model', 'log_create_time']
 
 

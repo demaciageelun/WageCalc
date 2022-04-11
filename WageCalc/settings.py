@@ -78,11 +78,11 @@ WSGI_APPLICATION = 'WageCalc.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'wagecalc',
-        'HOST': '172.16.6.85',
+        'NAME': 'mysql',
+        'HOST': '192.168.65.129',
         'PORT': '3306',
-        'USER': 'wagecalc',
-        'PASSWORD': 'SHKtpJfixJFt5dNR',
+        'USER': 'root',
+        'PASSWORD': '',
         'OPTIONS': {
             "init_command": "SET sql_mode='STRICT_TRANS_TABLES'"
         }
@@ -148,7 +148,7 @@ STATICFILES_DIRS = (
 #
 SIMPLEUI_CONFIG = {
     'system_keep': False,
-    'menu_display': ['基础信息', '导入报表', '工资汇总', '离职薪资', '离职面谈台账', '权限认证'],  # 开启排序和过滤功能, 不填此字段为默认排序和全部显示, 空列表[] 为全部不显示.
+    'menu_display': ['基础信息', '导入报表', '工资汇总', '离职薪资', '离职面谈台账', '内荐', '权限认证'],  # 开启排序和过滤功能, 不填此字段为默认排序和全部显示, 空列表[] 为全部不显示.
     'dynamic': True,  # 设置是否开启动态菜单, 默认为False. 如果开启, 则会在每次用户登陆时动态展示菜单内容
     'menus': [{
         'app': 'wage',
@@ -241,6 +241,22 @@ SIMPLEUI_CONFIG = {
                 'icon': 'el-icon-document',
                 'url': 'wage/leaveaccount/'
             }
+            ]
+        },
+        {
+            'app': 'wage',
+            'name': '内荐',
+            'icon': 'el-icon-present',
+            'models': [{
+                'name': '内荐名单导入',
+                'icon': 'el-icon-trophy',
+                'url': 'wage/recomdcandidates/'
+            },
+                {
+                    'name': '奖金标准',
+                    'icon': 'el-icon-shopping-bag-2',
+                    'url': 'wage/recomdstandards/'
+                }
             ]
         },
         {

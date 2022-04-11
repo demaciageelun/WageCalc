@@ -308,7 +308,7 @@ class WageExpenseInto(models.Model):
         db_table = 'wage_expense_into'
         verbose_name = '费用引入表'
         verbose_name_plural = '费用引入表'
-        permissions = [('can_import_expense', u'导入费用')]
+        permissions = [('can_import_expense', u'导入费用'), ('can_download_expense', u'下载费用')]
 
 
 class WagePerformanceInto(models.Model):
@@ -336,7 +336,7 @@ class WagePerformanceInto(models.Model):
         db_table = 'wage_performance_into'
         verbose_name = '绩效表'
         verbose_name_plural = '绩效表'
-        permissions = [('can_import_performance', u'导入绩效')]
+        permissions = [('can_import_performance', u'导入绩效'), ('can_download_performance', u'下载绩效')]
 
 
 class WagePosition(models.Model):
@@ -378,7 +378,7 @@ class WageFixWage(models.Model):
         db_table = 'wage_fix_wage'
         verbose_name = '固定工资表'
         verbose_name_plural = '固定工资表'
-        permissions = [('can_import_fix', u'导入固定工资')]
+        permissions = [('can_import_fix', u'导入固定工资'), ('can_download_fix', u'下载固定工资')]
 
 
 class WageMonth(models.Model):
@@ -635,7 +635,7 @@ class RecomdCandidates(models.Model):
     modify_time = models.DateTimeField(blank=True, null=True, verbose_name="修改时间", auto_now_add=True)
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'recomd_candidates'
         verbose_name = '内荐名单'
         verbose_name_plural = '内荐名单'
@@ -647,9 +647,10 @@ class WageLog(models.Model):
     log_path = models.CharField(max_length=255, blank=True, null=True, verbose_name='文件路径')
     log_file_name = models.CharField(max_length=255, blank=True, null=True, verbose_name='文件名')
     log_create_time = models.DateTimeField(blank=True, null=True, verbose_name="上传时间", auto_now_add=True)
+    log_content = models.CharField(max_length=255, blank=True, null=True, verbose_name='错误提示')
 
     class Meta:
-        managed = True
+        managed = False
         db_table = 'wage_log'
         verbose_name = '文件上传日志'
         verbose_name_plural = '文件上传日志'
